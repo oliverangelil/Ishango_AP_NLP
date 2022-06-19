@@ -49,4 +49,4 @@ class Neo4jConnect:
     def getArticles(self):
         pass
 
-# 
+# Remove class implementation
