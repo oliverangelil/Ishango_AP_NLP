@@ -1,7 +1,6 @@
 from neo4j import GraphDatabase
 from collections import Counter
 import itertools
-import os
 
 class Neo4jConnect:
     def __init__(self, uri, user, password):
@@ -47,19 +46,5 @@ class Neo4jConnect:
         else: pass
         return dict(props_keys)
 
-
-# flatten_list = list(itertools.chain(*original_list))
-
-
-uri = os.environ.get('DB_URI')
-user = os.environ.get('DB_USER')
-password = os.environ.get('DB_PASS')
-
-neoConn = Neo4jConnect(uri, user, password)
-
-r = neoConn.getProperties()
-
-print(r)
-
-
-neoConn.closeConnection()
+    def getArticles(self):
+        pass
