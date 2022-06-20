@@ -90,10 +90,10 @@ class Neo4jConnect:
             pass
         return self.__getCounter__(props_keys)
 
-    def getArticleBody(self):
+    def getArticles(self):
         """
             Returns a dictionary:
-                key: author_name
+                key: articleId
                 value: dictionary(datePublished: mainArticle)
         """
         if self.driver is not None:
