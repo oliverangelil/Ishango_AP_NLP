@@ -1,5 +1,3 @@
-
-import os
 from neo4j import GraphDatabase
 from collections import Counter
 import itertools
