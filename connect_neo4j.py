@@ -6,6 +6,11 @@ import itertools
 
 class Neo4jConnect:
     def __init__(self, uri, user, password):
+        """
+            uri: [neo4j, neo4j+s, bolt+s, bolt] neo4j does not support https
+            user: username
+            password: password
+        """
         self.db_uri = uri
         self.db_user = user
         self.db_pass = password
@@ -91,7 +96,6 @@ class Neo4jConnect:
                 value: dictionary (datePublished: mainArticle)
         """
         if self.driver is not None:
-            # entity_res = self.__getEntity__()
             query = """
                     match (n: Article)
                     return n.headline, n.articleBody,
