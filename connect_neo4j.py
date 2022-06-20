@@ -1,4 +1,5 @@
 
+import os
 from neo4j import GraphDatabase
 from collections import Counter
 import itertools
@@ -27,7 +28,9 @@ class Neo4jConnect:
         if self.driver is None:
             pass
         else:
+            print("===========")
             self.driver.close()
+            print("Connection closed")
 
     def __unpackResults__(self, items2unpack: list):
         """
@@ -93,19 +96,19 @@ class Neo4jConnect:
         """
             Returns a dictionary:
                 key: author_name
-                value: dictionary (datePublished: mainArticle)
+                value: dictionary(datePublished: mainArticle)
         """
         if self.driver is not None:
             query = """
-                    match (n: Article)
-                    return n.headline, n.articleBody,
-                    n.author, n.probability,
-                    n.datePublished"""
+                    MATCH (n:Article)
+                    RETURN n.articleBody,
+                    n.articleId,n.datePublished
+                    """
             with self.driver.session() as session:
                 ent_props = session.run(query)
                 ent_props = [dict(i) for i in ent_props]
                 articles = {
-                    f"{i['n.author']}":
+                    f"{i['n.articleId']}":
                     {'date': i['n.datePublished'],
                      'mainArticle': i['n.articleBody']}
                     for i in ent_props}
