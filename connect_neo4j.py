@@ -1,6 +1,8 @@
+import os
 from neo4j import GraphDatabase
 from collections import Counter
 import itertools
+# from datetime import datetime
 
 
 class Neo4jConnect:
@@ -26,9 +28,7 @@ class Neo4jConnect:
         if self.driver is None:
             pass
         else:
-            print("===========")
             self.driver.close()
-            print("Connection closed")
 
     def __unpackResults__(self, items2unpack: list):
         """
@@ -111,3 +111,23 @@ class Neo4jConnect:
                      'mainArticle': i['n.articleBody']}
                     for i in ent_props}
         return articles
+
+    def write_articles(self):
+        if self.driver is not None:
+            # path = os.makedirs("./data")
+            get_path = os.path.join(os.getcwd(), "data")
+            try:
+                if os.path.exists(get_path):
+                    pass
+                else:
+                    os.makedirs(get_path)
+                os.chdir(get_path)
+                article_content = self.getArticles()
+                for id in article_content.keys():
+                    with open("{}.txt".format(id), 'a') as data:
+                        data.write(article_content[id]['mainArticle'])
+                        data.close()
+            except FileExistsError:
+                print("Yes")
+        else:
+            print("Not connected to Database")
