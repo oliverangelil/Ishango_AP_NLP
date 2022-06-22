@@ -56,6 +56,7 @@ class Neo4jConnect:
             with self.driver.session() as session:
                 result = session.run(query)
                 relations = [dict(i)['TYPE(r)'] for i in result]
+            self.driver.close()
         else:
             pass
         return dict(Counter(relations))
@@ -72,6 +73,7 @@ class Neo4jConnect:
                 result = session.run(query)
                 props_results = [dict(i)['KEYS(n)'] for i in result]
                 props_keys = self.unpackResults(props_results)
+            self.driver.close()
         else:
             pass
         return dict(Counter(props_keys))
