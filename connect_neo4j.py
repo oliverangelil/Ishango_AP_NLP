@@ -4,7 +4,7 @@ import itertools
 
 
 class Neo4jConnect:
-    def __init__(self, uri, user, password):
+    def __init__(self, uri: str, user: str, password: str):
         """
             uri: [neo4j, neo4j+s, bolt+s, bolt] neo4j does not support https
             user: username
