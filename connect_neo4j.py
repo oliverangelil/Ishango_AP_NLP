@@ -1,8 +1,6 @@
-import os
 from neo4j import GraphDatabase
 from collections import Counter
 import itertools
-# from datetime import datetime
 
 
 class Neo4jConnect:
@@ -24,27 +22,15 @@ class Neo4jConnect:
         except Exception as err:
             print("Failed to connect to Database: ", err)
 
-    def __closeConnection__(self):
-        if self.driver is None:
-            pass
-        else:
-            self.driver.close()
-
-    def __unpackResults__(self, items2unpack: list):
+    @staticmethod
+    def unpackResults(items2unpack: list) -> list:
         """
             Helper fucntion:
                 unpack a list of lists into list
         """
         return list(itertools.chain(*items2unpack))
 
-    def __getCounter__(self, items2count: list):
-        """
-            Helper function:
-                count unique items in a list and return a dictionary
-        """
-        return dict(Counter(items2count))
-
-    def __getEntity__(self):
+    def getEntities(self) -> dict:
         """
             Returns a dictionary:
                 key: database entity (node)
@@ -57,9 +43,9 @@ class Neo4jConnect:
                 node_results = [dict(ii)['labels(n)'][0] for ii in result]
         else:
             print("No connected to Neo4j")
-        return self.__getCounter__(node_results)
+        return dict(Counter(node_results))
 
-    def __getRelations__(self):
+    def getRelations(self):
         """
             return a dictionary:
                 key: database relationship type
@@ -72,9 +58,9 @@ class Neo4jConnect:
                 relations = [dict(i)['TYPE(r)'] for i in result]
         else:
             pass
-        return self.__getCounter__(relations)
+        return dict(Counter(relations))
 
-    def __getProperties__(self):
+    def getProperties(self) -> dict:
         """
             return a dictionary:
                 key: database properties key
@@ -85,12 +71,12 @@ class Neo4jConnect:
             with self.driver.session() as session:
                 result = session.run(query)
                 props_results = [dict(i)['KEYS(n)'] for i in result]
-                props_keys = self.__unpackResults__(props_results)
+                props_keys = self.unpackResults(props_results)
         else:
             pass
-        return self.__getCounter__(props_keys)
+        return dict(Counter(props_keys))
 
-    def getArticles(self):
+    def getArticles(self) -> dict:
         """
             Returns a dictionary:
                 key: articleId
@@ -99,35 +85,22 @@ class Neo4jConnect:
         if self.driver is not None:
             query = """
                     MATCH (n:Article)
-                    RETURN n.articleBody,
-                    n.articleId,n.datePublished
+                    RETURN n.articleId,
+                    n.description, n.author, n.headline,
+                    n.articleBody, n.datePublished,
+                    n.probability
                     """
             with self.driver.session() as session:
                 ent_props = session.run(query)
                 ent_props = [dict(i) for i in ent_props]
                 articles = {
-                    f"{i['n.articleId']}":
+                    i['n.articleId']:
                     {'date': i['n.datePublished'],
+                     'author': i['n.author'],
+                     'headline': i['n.headline'],
+                     'propability': i['n.probability'],
+                     'desciption': i['n.description'],
                      'mainArticle': i['n.articleBody']}
                     for i in ent_props}
+        self.driver.close()
         return articles
-
-    def write_articles(self):
-        if self.driver is not None:
-            # path = os.makedirs("./data")
-            get_path = os.path.join(os.getcwd(), "data")
-            try:
-                if os.path.exists(get_path):
-                    pass
-                else:
-                    os.makedirs(get_path)
-                os.chdir(get_path)
-                article_content = self.getArticles()
-                for id in article_content.keys():
-                    with open("{}.txt".format(id), 'a') as data:
-                        data.write(article_content[id]['mainArticle'])
-                        data.close()
-            except FileExistsError:
-                print("Yes")
-        else:
-            print("Not connected to Database")
